@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EMI Calculator</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f9fbfd;
+    color: #222;
+    overflow-x: hidden;
+  }
+  nav {
+    background: linear-gradient(90deg, #0052cc, #0077ff);
+    color: white;
+    padding: 10px 20px 5px;
+    position: relative;
+  }
+  #hamburger {
+    font-size: 26px;
+    cursor: pointer;
+  }
+  .title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    margin-bottom: 10px;
+  }
+  .nav-links {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-weight: 600;
+    user-select: none;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .nav-links > div {
+    position: relative;
+    cursor: pointer;
+    color: white;
+  }
+  .submenu {
+    display: none;
+    position: absolute;
+    top: 32px;
+    left: 0;
+    background-color: #1e4db7;
+    flex-direction: column;
+    min-width: 160px;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    z-index: 30;
+  }
+  .submenu a {
+    padding: 10px 15px;
+    color: #e2e8f9;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: block;
+  }
+  .submenu a:last-child {
+    border-bottom: none;
+  }
+  .submenu a:hover {
+    background-color: #3d74de;
+  }
+  .nav-links > div.open > .submenu {
+    display: flex;
+  }
+  #faq .submenu {
+    right: 0;
+    left: auto;
+  }
+
+  #sideMenu {
+    position: fixed;
+    top: 0; left: -250px;
+    width: 250px; height: 100vh;
+    background: #0041a3;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+    transition: left 0.3s ease;
+    z-index: 100;
+  }
+  #sideMenu.open {
+    left: 0;
+  }
+  #sideMenu h2 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    padding-bottom: 8px;
+  }
+  #sideMenu a {
+    color: white;
+    display: block;
+    margin: 15px 0;
+    text-decoration: none;
+    font-size: 18px;
+  }
+  #sideMenu a:hover {
+    text-decoration: underline;
+  }
+
+  main {
+    max-width: 400px;
+    margin: 30px auto 40px;
+    background: white;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  main h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-align: center;
+    color: #0052cc;
+    font-size: 22px;
+  }
+  label {
+    display: block;
+    margin: 12px 0 5px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 2px solid #0077ff;
+    border-radius: 6px;
+    outline: none;
+  }
+  input[type="number"]:focus {
+    border-color: #0052cc;
+  }
+  button {
+    margin-top: 20px;
+    width: 100%;
+    padding: 10px;
+    background: #0052cc;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #003a8c;
+  }
+  #emiResult {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0077ff;
+    text-align: center;
+  }
+
+  #reviewSection {
+    max-width: 400px;
+    margin: 10px auto 40px;
+    background: #eef6ff;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  }
+  #reviewSection h3 {
+    margin-top: 0;
+    color: #004ba8;
+    font-size: 20px;
+  }
+  #reviewSection input, #reviewSection textarea, #reviewSection select {
+    width: 100%;
+    padding: 8px 10px;
+    margin: 8px 0 12px;
+    border-radius: 6px;
+    border: 1.5px solid #0077ff;
+    font-size: 14px;
+  }
+  #reviewSection textarea {
+    resize: vertical;
+  }
+  #reviewSection button {
+    background: #004ba8;
+  }
+  #reviewSection button:hover {
+    background: #003578;
+  }
+
+  footer {
+    text-align: center;
+    padding: 15px 10px;
+    font-size: 14px;
+    color: #555;
+    background: #f1f5fb;
+    border-top: 1px solid #ddd;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1470&q=80') center/cover no-repeat;
+    filter: blur(12px) brightness(0.6);
+    z-index: -1;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div id="hamburger">&#9776;</div>
+  <div class="title">EMI Calculator</div>
+  <div class="nav-links">
+    <div id="loanType">
+      Loan Types
+      <div class="submenu">
+        <a href="#">Home Loan</a>
+        <a href="#">Personal Loan</a>
+        <a href="#">Car Loan</a>
+        <a href="#">Education Loan</a>
+      </div>
+    </div>
+    <div id="offers">
+      Offers
+      <div class="submenu">
+        <a href="#">Festival Offer</a>
+        <a href="#">Year-end Offer</a>
+        <a href="#">Special Discount</a>
+      </div>
+    </div>
+    <div id="faq">
+      FAQ
+      <div class="submenu">
+        <a href="#">How EMI works?</a>
+        <a href="#">Payment Options</a>
+        <a href="#">Late Payment</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="sideMenu">
+  <h2>About</h2>
+  <p>EMI Calculator helps you estimate your monthly installments easily.</p>
+  <a href="#">Contact Us</a>
+</div>
+
+<main>
+  <h2>Calculate Your EMI</h2>
+  <label for="principal">Loan Amount (₹):</label>
+  <input type="number" id="principal" min="1" placeholder="Enter principal amount" />
+  
+  <label for="rate">Annual Interest Rate (%):</label>
+  <input type="number" id="rate" step="0.01" min="0" placeholder="Enter interest rate" />
+  
+  <label for="tenure">Tenure (Months):</label>
+  <input type="number" id="tenure" min="1" placeholder="Enter tenure in months" />
+  
+  <button onclick="calculateEMI()">Calculate EMI</button>
+  <div id="emiResult"></div>
+</main>
+
+<section id="reviewSection">
+  <h3>Submit Your Review</h3>
+  <input type="text" id="reviewName" placeholder="Your Name" />
+  <select id="rating">
+    <option value="">Rating</option>
+    <option value="5">5 - Excellent</option>
+    <option value="4">4 - Very Good</option>
+    <option value="3">3 - Good</option>
+    <option value="2">2 - Fair</option>
+    <option value="1">1 - Poor</option>
+  </select>
+  <textarea id="reviewText" rows="3" placeholder="Write your review here"></textarea>
+  <button onclick="submitReview()">Submit Review</button>
+</section>
+
+<footer>© 2025 EMI Calculator. All rights reserved.</footer>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const sideMenu = document.getElementById('sideMenu');
+
+  hamburger.onclick = () => {
+    sideMenu.classList.toggle('open');
+  };
+
+  document.addEventListener('click', function(event) {
+    if (!sideMenu.contains(event.target) && event.target !== hamburger) {
+      sideMenu.classList.remove('open');
+    }
+  });
+
+  const navItems = document.querySelectorAll('.nav-links > div');
+  navItems.forEach(item => {
+    item.addEventListener('click', e => {
+      navItems.forEach(i => {
+        if(i !== item) i.classList.remove('open');
+      });
+      item.classList.toggle('open');
+    });
+  });
+
+  window.addEventListener('click', e => {
+    if(!e.target.closest('.nav-links > div')) {
+      navItems.forEach(i => i.classList.remove('open'));
+    }
+  });
+
+  const faq = document.getElementById('faq');
+  faq.addEventListener('mouseenter', () => {
+    const submenu = faq.querySelector('.submenu');
+    const rect = submenu.getBoundingClientRect();
+    if(rect.right > window.innerWidth) {
+      submenu.style.left = 'auto';
+      submenu.style.right = '0';
+    } else {
+      submenu.style.left = '0';
+      submenu.style.right = 'auto';
+    }
+  });
+
+  function calculateEMI() {
+    const P = parseFloat(document.getElementById('principal').value);
+    const R = parseFloat(document.getElementById('rate').value) / 12 / 100;
+    const N = parseInt(document.getElementById('tenure').value);
+    if (isNaN(P) || isNaN(R) || isNaN(N) || P <= 0 || R < 0 || N <= 0) {
+      alert('Please enter valid positive values.');
+      return;
+    }
+    let emi;
+    if(R === 0) {
+      emi = P / N;
+    } else {
+      const numerator = P * R * Math.pow(1 + R, N);
+      const denominator = Math.pow(1 + R, N) - 1;
+      emi = numerator / denominator;
+    }
+    document.getElementById('emiResult').textContent = `Monthly EMI: ₹${emi.toFixed(2)}`;
+  }
+
+  function submitReview() {
+    const name = document.getElementById('reviewName').value.trim();
+    const rating = document.getElementById('rating').value;
+    const review = document.getElementById('reviewText').value.trim();
+    if(!name || !rating || !review) {
+      alert('Please fill all review fields.');
+      return;
+    }
+    alert(`Thank you, ${name}! Your review with rating ${rating} has been submitted.`);
+    document.getElementById('reviewName').value = '';
+    document.getElementById('rating').value = '';
+    document.getElementById('reviewText').value = '';
+  }
+</script>
+
+</body>
+</html>
